@@ -21,6 +21,19 @@ public class GungeonGenerator_One : MonoBehaviour
     [Header("Room List")]
     [SerializeField] private List<Room> rooms = new();
 
+
+    
+    
+    //furthest and second farthest rooms perameters 
+    // save furthest rooms
+    private List<GameObject> furthestRooms = new();
+    // save second farthest rooms
+    private List<GameObject> lessFurtherRooms = new();
+    // save both of rooms only with one door
+    private List<GameObject> singleDoorRooms = new();
+
+    private int maxstep = 0;
+
     private void Start()
     {
         RoomGenerator();
@@ -40,15 +53,15 @@ public class GungeonGenerator_One : MonoBehaviour
             rooms.Add(Instantiate(roomPrefab, GenerateCoordinate.position, Quaternion.identity).GetComponent<Room>());
             RandomGeneratePosition();
         }
-
+        SetUpRooms();
+        FindFurthestRoom();
+        FindLessFarestRoom();
         rooms[0].GetComponent<SpriteRenderer>().color = startRoomColor;
-        // TODO: Find The End Of The Room 
-        //GetLastRoom().GetComponent<SpriteRenderer>().color = endRoomColor;
+        GetSingleDoorRoom().GetComponent<SpriteRenderer>().color = endRoomColor;
 
-        foreach (Room room in rooms)
-        {
-            SetUpRooms(room, room.transform.position);
-        }
+
+
+
 
     }
     // Set Ramdom dirction to room position
@@ -106,14 +119,83 @@ public class GungeonGenerator_One : MonoBehaviour
             }
         }
         return lastRoom;
-
-
     }
-    private void SetUpRooms(Room current,Vector3 roomPosition)
+    private void SetUpRooms()
     {
-        current.roomNorth = IsRoomOverlap(roomPosition + new Vector3(0, -yOffset, 0));
-        current.roomSouth = IsRoomOverlap(roomPosition + new Vector3(0,yOffset, 0));
-        current.roomEast = IsRoomOverlap(roomPosition + new Vector3(xOffset, 0, 0));
-        current.roomWest = IsRoomOverlap(roomPosition + new Vector3(-xOffset, 0, 0));
+        foreach (var room in rooms)
+        {
+            var roomPosition = room.transform.position;
+            room.roomNorth = IsRoomOverlap(roomPosition + new Vector3(0, -yOffset, 0));
+            room.roomSouth = IsRoomOverlap(roomPosition + new Vector3(0, yOffset, 0));
+            room.roomEast = IsRoomOverlap(roomPosition + new Vector3(xOffset, 0, 0));
+            room.roomWest = IsRoomOverlap(roomPosition + new Vector3(-xOffset, 0, 0));
+            
+            //Setup the room step text
+            room.SetStepToRoom();
+        }
+
     }
+
+    private void SetBossRoom()
+    {
+       
+        GetSingleDoorRoom();
+    }
+
+    private void FindFurthestRoom()
+    {
+        for (int i = 0; i < rooms.Count; i++)
+        {
+            if (rooms[i].step > maxstep)
+            {
+                maxstep = rooms[i].step;
+            }
+        }
+    }
+
+    private void FindLessFarestRoom()
+    {
+        foreach (var room in rooms)
+        {
+            if (room.step == maxstep)
+            {
+                furthestRooms.Add(room.gameObject);
+            }
+            if (room.step == maxstep - 1)
+            {
+                lessFurtherRooms.Add(room.gameObject);
+            }
+        }
+    }
+
+    private GameObject GetSingleDoorRoom()
+    {
+        
+        for(int i =  0; i < furthestRooms.Count; i++)
+        {
+            if (furthestRooms[i].GetComponent<Room>().doorNums == 1)
+            {
+                singleDoorRooms.Add(furthestRooms[i]);
+            }
+        }
+        for (int i = 0; i < lessFurtherRooms.Count; i++)
+        {
+            if (lessFurtherRooms[i].GetComponent<Room>().doorNums == 1)
+            {
+                singleDoorRooms.Add(lessFurtherRooms[i]);
+            }
+        }
+
+        if (singleDoorRooms.Count != 0)
+        {
+            return singleDoorRooms[Random.Range(0, singleDoorRooms.Count)];
+        }
+        else
+        {
+            return furthestRooms[Random.Range(0, furthestRooms.Count)];
+        }
+        
+
+    }
+
 }
