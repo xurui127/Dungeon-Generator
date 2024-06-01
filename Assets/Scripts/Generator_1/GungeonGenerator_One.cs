@@ -19,7 +19,7 @@ public class GungeonGenerator_One : MonoBehaviour
     [SerializeField] private float yOffset;
 
     [Header("Room List")]
-    [SerializeField] private List<GameObject> rooms = new();
+    [SerializeField] private List<Room> rooms = new();
 
     private void Start()
     {
@@ -37,13 +37,18 @@ public class GungeonGenerator_One : MonoBehaviour
     {
         for (int i = 0; i < roomCount; i++)
         {
-            rooms.Add(Instantiate(roomPrefab, GenerateCoordinate.position, Quaternion.identity));
+            rooms.Add(Instantiate(roomPrefab, GenerateCoordinate.position, Quaternion.identity).GetComponent<Room>());
             RandomGeneratePosition();
         }
 
         rooms[0].GetComponent<SpriteRenderer>().color = startRoomColor;
         // TODO: Find The End Of The Room 
-        GetLastRoom();
+        //GetLastRoom().GetComponent<SpriteRenderer>().color = endRoomColor;
+
+        foreach (Room room in rooms)
+        {
+            SetUpRooms(room, room.transform.position);
+        }
 
     }
     // Set Ramdom dirction to room position
@@ -89,26 +94,26 @@ public class GungeonGenerator_One : MonoBehaviour
         }
         return false;
     }
-    private void GetLastRoom()
+    private GameObject GetLastRoom()
     {
-        Queue<GameObject> checkingRoom = new();
-        HashSet<GameObject> isVisited = new();
-
-        checkingRoom.Enqueue(rooms[0]);
-        isVisited.Add(rooms[0]);
-        int step = 0;
-        while (checkingRoom.Count != 0)
+        var lastRoom = rooms[0].gameObject;
+        foreach (var room in rooms)
         {
-            int size = checkingRoom.Count;
-            for (int i = 0; i < size; i++)
-            {
-                GameObject currentRoom = checkingRoom.Dequeue();
-                
 
+            if (room.transform.position.sqrMagnitude > lastRoom.transform.position.magnitude)
+            {
+                lastRoom = room.gameObject;
             }
         }
+        return lastRoom;
 
-        step++;
 
+    }
+    private void SetUpRooms(Room current,Vector3 roomPosition)
+    {
+        current.roomNorth = IsRoomOverlap(roomPosition + new Vector3(0, -yOffset, 0));
+        current.roomSouth = IsRoomOverlap(roomPosition + new Vector3(0,yOffset, 0));
+        current.roomEast = IsRoomOverlap(roomPosition + new Vector3(xOffset, 0, 0));
+        current.roomWest = IsRoomOverlap(roomPosition + new Vector3(-xOffset, 0, 0));
     }
 }

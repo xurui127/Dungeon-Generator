@@ -5,6 +5,7 @@ using UnityEngine;
 public class BaseRoom : ScriptableObject
 {
     public GameObject roomPrefab;
+    public Vector2 spawPoint;
     public bool visited = false;
     public bool[] doors = new bool[4];
 }
