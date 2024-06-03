@@ -1,28 +1,55 @@
+/// Credit to SilverlyBee for the original implementation.
+//  Video:  https://www.youtube.com/watch?v=gHU5RQWbmWE
+//  GitHub: https://github.com/silverlybee/dungeon-generator  
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DungeonGenerator : MonoBehaviour
 {
+     
+    /// <summary>
+    /// record cell properties
+    /// isVistied to keep room does not regenerate 
+    /// status for save 4 dirctions rooms 0 = Up, 1 = Down, 2 = Right, 3 = Left
+    /// </summary>
     public class Cell
     {
         public bool isVistied = false;
         public bool[] status = new bool[4];
     }
     [Header("Maze size : ")]
+    // for maze size.
+    // size.x for the row
+    // size.y for the column
     [SerializeField] private Vector2 size;
+    
+    // Set room start spawn position
     [SerializeField] private int startPosition = 0;
-
-    [SerializeField] List<Cell> board = new List<Cell>();
 
     [Header("Room Prefab")]
     [SerializeField] private GameObject room;
+    
     [Header("Rooms Offset")]
     [SerializeField] private Vector2 offSet;
-    // Start is called before the first frame update
+    
+    // for save room status 
+    [SerializeField] List<Cell> board = new List<Cell>();
+   
+
     void Start()
     {
         MazeGenerator();
+    }
+
+    private void Update()
+    {
+        if (Input.anyKey)
+        {
+            ReloadScene();
+        }
     }
 
     private void GenerateDungeon()
@@ -43,8 +70,11 @@ public class DungeonGenerator : MonoBehaviour
             }
         }
     }
+
+    // Generate Maze 
     private void MazeGenerator()
     {
+
         board = new();
         for (int i = 0; i < size.x; i++)
         {
@@ -65,12 +95,17 @@ public class DungeonGenerator : MonoBehaviour
 
             board[currentCell].isVistied = true;
 
+            // Check if currentCell is the last Cell
             if (currentCell == board.Count - 1)
             {
                 break;
             }
+            
             //Check the cell's neighbors 
-            List<int> neighbors = CheckNeighbor(currentCell);
+            List<int> neighbors = CheckNeighbors(currentCell);
+
+
+            // Back Trace to the start position
             if (neighbors.Count == 0)
             {
                 // to the end of the path
@@ -87,11 +122,14 @@ public class DungeonGenerator : MonoBehaviour
             {
                 path.Push(currentCell);
 
+                // Randomly pick a neighbor
                 int newCell = neighbors[Random.Range(0, neighbors.Count)];
 
+                // newCell going left or right side
                 if (newCell > currentCell)
                 {
-                    // newCell going left or right side
+                    // if newCell = 2 and currentCell = 1,
+                    // the newCell should be at the currentCell right side 
                     if (newCell - 1 == currentCell)
                     {
                         // current cell going to right side
@@ -100,6 +138,9 @@ public class DungeonGenerator : MonoBehaviour
                         // next cell opening to left
                         board[currentCell].status[3] = true;
                     }
+                    // if(newCell - 1 != currenCell)
+                    // Ex. newCell = 12 and currentCell = 2
+                    // means newCell is at the currentCell down side
                     else
                     {
                         // current cell going to down side
@@ -134,33 +175,41 @@ public class DungeonGenerator : MonoBehaviour
         GenerateDungeon();
     }
 
-    private List<int> CheckNeighbor(int cell)
+    private List<int> CheckNeighbors(int currentCell)
     {
         List<int> neighbors = new();
 
         //Check up neighbor
-        if (cell - size.x >= 0 && !board[Mathf.FloorToInt(cell - size.x)].isVistied)
+        if (currentCell - size.x >= 0 && !board[Mathf.FloorToInt(currentCell - size.x)].isVistied)
         {
-            neighbors.Add(Mathf.FloorToInt(cell - size.x));
+            neighbors.Add(Mathf.FloorToInt(currentCell - size.x));
         }
         //Check down neighbor
-        if (cell + size.x < board.Count && !board[Mathf.FloorToInt(cell + size.x)].isVistied)
+        if (currentCell + size.x < board.Count && !board[Mathf.FloorToInt(currentCell + size.x)].isVistied)
         {
-            neighbors.Add(Mathf.FloorToInt(cell + size.x));
+            neighbors.Add(Mathf.FloorToInt(currentCell + size.x));
         }
         //Check right neighbor
-        // Cell % size.x = size.x - 1 
-        if ((cell + 1) % size.x != 0 && !board[Mathf.FloorToInt(cell + 1)].isVistied)
+        //      (1 + 1) % 10 = 2                                         2
+        //      (2 + 1) % 10 = 3
+        //      (9 + 1) % 10 = 0   means last index in first row         9 + 1 = 10
+        //      (19 + 1)% 10 = 0                                        19 + 1 = 20
+        if ((currentCell + 1) % size.x != 0 && !board[Mathf.FloorToInt(currentCell + 1)].isVistied)
         {
-            neighbors.Add(Mathf.FloorToInt(cell + 1));
+            neighbors.Add(Mathf.FloorToInt(currentCell + 1));
         }
 
         //Check left neighbor
-        if (cell % size.x != 0 && !board[Mathf.FloorToInt(cell - 1)].isVistied)
+        if (currentCell % size.x != 0 && !board[Mathf.FloorToInt(currentCell - 1)].isVistied)
         {
-            neighbors.Add(Mathf.FloorToInt(cell - 1));
+            neighbors.Add(Mathf.FloorToInt(currentCell - 1));
         }
 
         return neighbors;
+    }
+
+    public void ReloadScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

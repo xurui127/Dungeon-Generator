@@ -56,7 +56,7 @@ public class GungeonGenerator_One : MonoBehaviour
         for (int i = 0; i < roomCount; i++)
         {
             rooms.Add(Instantiate(roomPrefab, GenerateCoordinate.position, Quaternion.identity).GetComponent<Room>());
-            RandomGeneratePosition();
+            GenerateRamdonRoomPosition();
         }
         SetUpRooms();
         FindFurthestRoom();
@@ -73,7 +73,7 @@ public class GungeonGenerator_One : MonoBehaviour
 
     }
     // Set Ramdom dirction to room position
-    private void RandomGeneratePosition()
+    private void GenerateRamdonRoomPosition()
     {
 
         while (IsRoomOverlap(GenerateCoordinate.position))
