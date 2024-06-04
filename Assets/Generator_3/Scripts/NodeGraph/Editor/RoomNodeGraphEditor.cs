@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 public class RoomNodeGraphEditor : EditorWindow
 {
     private GUIStyle roomNodeStyle;
+    private GUIStyle RoomNodeSelectedStyle;
     private static RoomNodeGraphSO currentRoomNodeGraph;
     private RoomNodeSO currentRoomNode = null;
     private RoomNodeTypeListSO roomNodeTypeList;
@@ -31,15 +32,44 @@ public class RoomNodeGraphEditor : EditorWindow
 
     private void OnEnable()
     {
-        // Custom the room node style
+        //Subscribe to the inspector selection changed event
+        Selection.selectionChanged += InspectorSelectionChanged;
+
+        // Define the room node style
         roomNodeStyle = new GUIStyle();
         roomNodeStyle.normal.background = EditorGUIUtility.Load("node1") as Texture2D;
         roomNodeStyle.normal.textColor = Color.white;
         roomNodeStyle.padding = new RectOffset(nodePadding, nodePadding, nodePadding, nodePadding);
         roomNodeStyle.border = new RectOffset(nodeBorder, nodeBorder, nodeBorder, nodeBorder);
 
+        //Define the room node selected style
+        RoomNodeSelectedStyle = new GUIStyle();
+        RoomNodeSelectedStyle.normal.background = EditorGUIUtility.Load("node1 on") as Texture2D;
+        RoomNodeSelectedStyle.normal.textColor = Color.white;
+        RoomNodeSelectedStyle.padding = new RectOffset(nodePadding, nodePadding, nodePadding, nodePadding);
+        RoomNodeSelectedStyle.border = new RectOffset(nodeBorder, nodeBorder, nodeBorder, nodeBorder);
+
         // Load Room node types 
         roomNodeTypeList = GameResources.Instance.roomNodetypeList;
+    }
+    private void OnDisable()
+    {
+        //Unsubscribe to the inspector selection changed event
+        Selection.selectionChanged -= InspectorSelectionChanged;
+
+    }
+    /// <summary>
+    /// Selection changed in inspector
+    /// Change other RoomNodeGraph
+    /// </summary>
+    private void InspectorSelectionChanged()
+    {
+        var roomNodeGraph = Selection.activeObject as RoomNodeGraphSO;
+        if (roomNodeGraph != null)
+        {
+            currentRoomNodeGraph = roomNodeGraph;
+            GUI.changed = true;
+        }
     }
     #region Draw Methods
     /// <summary>
@@ -139,7 +169,14 @@ public class RoomNodeGraphEditor : EditorWindow
         // Loop through all room nodes and draw them
         foreach (var roomNode in currentRoomNodeGraph.roomNodeList)
         {
-            roomNode.Draw(roomNodeStyle);
+            if (roomNode.isSelected)
+            {
+                roomNode.Draw(RoomNodeSelectedStyle);
+            }
+            else
+            {
+                roomNode.Draw(roomNodeStyle);
+            }
         }
 
         GUI.changed = true;
@@ -177,6 +214,11 @@ public class RoomNodeGraphEditor : EditorWindow
     }
     private void CreateRoomNode(object mousePositionObject)
     {
+        // if current node graph empty then add entrance room node first
+        if (currentRoomNodeGraph.roomNodeList.Count == 0)
+        {
+            CreateRoomNode(new Vector2(200f, 200f), roomNodeTypeList.list.Find(x => x.isEntrance));
+        }
         CreateRoomNode(mousePositionObject, roomNodeTypeList.list.Find(x => x.isNone));
     }
     private void CreateRoomNode(object mousePositionObject, RoomNodeTypeSO roomNodeType)
@@ -298,6 +340,26 @@ public class RoomNodeGraphEditor : EditorWindow
         if (currentEvent.button == 1)
         {
             ShowContextMenu(currentEvent.mousePosition);
+        }
+        if (currentEvent.button == 0)
+        {
+            ClearLineDrag();
+            ClearAllSelectedRoomNode();
+        }
+    }
+
+    /// <summary>
+    /// Clear selection from all room nodes
+    /// </summary>
+    private void ClearAllSelectedRoomNode()
+    {
+        foreach (var roomNode in currentRoomNodeGraph.roomNodeList)
+        {
+            if (roomNode.isSelected)
+            {
+                roomNode.isSelected = false;
+                GUI.changed = true;
+            }
         }
     }
     #endregion
