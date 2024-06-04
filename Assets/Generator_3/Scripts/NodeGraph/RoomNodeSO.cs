@@ -5,13 +5,13 @@ using UnityEditor;
 public class RoomNodeSO : ScriptableObject
 {
     // current room node id, id will be system generated id -> GUID. 
-     [HideInInspector]public string id;
+    public string id;
 
     // Save current RoomNode parent Nodes.
-    [HideInInspector] public List<string> parentRoomNodeIDList = new();
+    public List<string> parentRoomNodeIDList = new();
 
     // Save current RoomNode child Nodes.
-    [HideInInspector] public List<string> childRoomNodeIDList = new();
+    public List<string> childRoomNodeIDList = new();
 
     // Save current Node Graph
     [HideInInspector] public RoomNodeGraphSO roomNodeGraph;
@@ -90,13 +90,13 @@ public class RoomNodeSO : ScriptableObject
 
     public void ProcessEvents(Event currentEvent)
     {
-        switch(currentEvent.type)
+        switch (currentEvent.type)
         {
             case EventType.MouseDown:
                 ProcessMouseDownEvent(currentEvent);
                 break;
             case EventType.MouseUp:
-                ProcessMouseUpEvent(currentEvent); 
+                ProcessMouseUpEvent(currentEvent);
                 break;
             case EventType.MouseDrag:
                 ProcessMouseDragEvent(currentEvent);
@@ -114,7 +114,7 @@ public class RoomNodeSO : ScriptableObject
 
     private void ProcessLeftMouseDragEvent(Event currentEvent)
     {
-       isLeftClickDragging = true;
+        isLeftClickDragging = true;
         DragNode(currentEvent.delta);
         GUI.changed = true;
     }
@@ -190,15 +190,91 @@ public class RoomNodeSO : ScriptableObject
 
     public bool AddChildRoomNodeIDToRoomNode(string childID)
     {
-        childRoomNodeIDList.Add(childID);
-        return true;
+        // Check child node can be added validly to parent
+        if (IsChildRoomValid(childID))
+        {
+            childRoomNodeIDList.Add(childID);
+            return true;
+        }
+        return false;
     }
     public bool AddParentRoomNodeIDToRoomNode(string parentID)
     {
         parentRoomNodeIDList.Add(parentID);
         return true;
     }
+    /// <summary>
+    /// Check the child node can be validly added to the parent node - return true if it can otherwise return false
+    /// </summary>
+    private bool IsChildRoomValid(string childID)
+    {
+        bool isConnectedBossNodeAlready = false;
+        foreach (var roomNode in roomNodeGraph.roomNodeList)
+        {
+            // Check if there is already a connected boss room in the node graph
+            if (roomNode.roomNodeType.isBossRoom && roomNode.parentRoomNodeIDList.Count > 0)
+            {
+                isConnectedBossNodeAlready = true;
+            }
+        }
 
+        // if the child node has a type of boss room and there is already a connected boss room node then return false
+        if (roomNodeGraph.GetRoomNode(childID).roomNodeType.isBossRoom && isConnectedBossNodeAlready)
+        {
+            return false;
+        }
+        // if the child node has a type of none then return false
+        if (roomNodeGraph.GetRoomNode(childID).roomNodeType.isNone)
+        {
+            return false;
+        }
+        // if the child node already has a child with this child ID return false    
+        if (childRoomNodeIDList.Contains(childID))
+        {
+            return false;
+        }
+        // if this node id and the child node id are the same return false
+        if (id == childID)
+        {
+            return false;
+        }
+        // if this child ID is already in the parentID list return false
+        if (parentRoomNodeIDList.Contains(childID))
+        {
+            return false;
+        }
+        // if the child node already has a parent return false
+        if (roomNodeGraph.GetRoomNode(childID).parentRoomNodeIDList.Count > 0)
+        {
+            return false;
+        }
+        // if child is a corridor and this code node is a corridor return false
+        if (roomNodeGraph.GetRoomNode(childID).roomNodeType.isCorridor && roomNodeType.isCorridor)
+        {
+            return false;
+        }
+        // if child node and this node are both roos return false
+        if (!roomNodeGraph.GetRoomNode(childID).roomNodeType.isCorridor && !roomNodeType.isCorridor)
+        {
+            return false;
+        }
+        // if adding a corridor check that this node has < the maximum permitted child corridors
+        if (roomNodeGraph.GetRoomNode(childID).roomNodeType.isCorridor && childRoomNodeIDList.Count >= Settings.maxChildCorridors)
+        {
+            return false;
+        }
+        // if the child room node is an entrance return false - the entrance must always be the top level parent node
+        if (roomNodeGraph.GetRoomNode(childID).roomNodeType.isEntrance)
+        {
+            return false;
+        }
+        // if adding a room to a corridor check that this corridor node doesnot already have a room added
+        if(!roomNodeGraph.GetRoomNode(childID).roomNodeType.isCorridor && childRoomNodeIDList.Count > 0)
+        {
+            return false;
+        }
+        return true;
+    }
 #endif
 
     #endregion
