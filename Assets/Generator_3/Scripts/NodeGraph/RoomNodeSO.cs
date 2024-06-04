@@ -56,12 +56,37 @@ public class RoomNodeSO : ScriptableObject
         }
         else
         {
-            //Display a popup using the roomnode type name values that can be selected from (default to the currently set roomNodeType)\
+            //Display a popup using the roomnode type name values that can be selected from (default to the currently set roomNodeType)
             int selected = roomNodeTypeList.list.FindIndex(x => x == roomNodeType);
 
             int selection = EditorGUILayout.Popup("", selected, GetRoomNodeTypesToDisplay());
 
             roomNodeType = roomNodeTypeList.list[selection];
+
+            // If the room type selection has changed making child connections ptentially invalid
+            if (roomNodeTypeList.list[selected].isCorridor && !roomNodeTypeList.list[selection].isCorridor ||
+                !roomNodeTypeList.list[selected].isCorridor && roomNodeTypeList.list[selection].isCorridor ||
+                !roomNodeTypeList.list[selected].isBossRoom && roomNodeTypeList.list[selection].isBossRoom)
+            {
+                if (childRoomNodeIDList.Count > 0)
+                {
+                    for (int i = childRoomNodeIDList.Count - 1; i >= 0; i--)
+                    {
+                        //Get Child Room Node
+                        var childRoomNode = roomNodeGraph.GetRoomNode(childRoomNodeIDList[i]);
+
+                        //if the child room node is not null
+                        if (childRoomNode != null)
+                        {
+                            //Remove childID from parent room node
+                            RemoveChildRoomNodeIDFromRoomNode(childRoomNode.id);
+
+                            //Remove parentID from child room node
+                            childRoomNode.RemoveParentRoomNodeIDFromRoomNode(id);
+                        }
+                    }
+                }
+            }
         }
 
         if (EditorGUI.EndChangeCheck())
@@ -269,12 +294,38 @@ public class RoomNodeSO : ScriptableObject
             return false;
         }
         // if adding a room to a corridor check that this corridor node doesnot already have a room added
-        if(!roomNodeGraph.GetRoomNode(childID).roomNodeType.isCorridor && childRoomNodeIDList.Count > 0)
+        if (!roomNodeGraph.GetRoomNode(childID).roomNodeType.isCorridor && childRoomNodeIDList.Count > 0)
         {
             return false;
         }
         return true;
     }
+    /// <summary>
+    ///  Remove childID from the node (return true if the node has been removed,false otherwise)
+    /// </summary>
+    public bool RemoveChildRoomNodeIDFromRoomNode(string childID)
+    {
+        if (childRoomNodeIDList.Contains(childID))
+        {
+            childRoomNodeIDList.Remove(childID);
+            return true;
+        }
+
+        return false;
+    }
+    /// <summary>
+    ///  Remove ParentID from the node (return true if the node has been removed,false otherwise)
+    /// </summary>
+    public bool RemoveParentRoomNodeIDFromRoomNode(string parentID)
+    {
+        if (parentRoomNodeIDList.Contains(parentID))
+        {
+            parentRoomNodeIDList.Remove(parentID);
+            return true;
+        }
+        return false;
+    }
+
 #endif
 
     #endregion

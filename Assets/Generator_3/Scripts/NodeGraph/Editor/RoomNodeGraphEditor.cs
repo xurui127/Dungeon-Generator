@@ -1,8 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEditor.Callbacks;
-using System;
-using Unity.VisualScripting;
+using System.Collections.Generic;
 
 public class RoomNodeGraphEditor : EditorWindow
 {
@@ -209,9 +208,30 @@ public class RoomNodeGraphEditor : EditorWindow
         GenericMenu menu = new GenericMenu();
 
         menu.AddItem(new GUIContent("Create Room Node"), false, CreateRoomNode, mousePosition);
-
+        menu.AddSeparator("");
+        menu.AddItem(new GUIContent("Select All Room Nodes"), false, SelectAllRoomNodes);
+        menu.AddSeparator("");
+        menu.AddItem(new GUIContent("Delete Selected Room Node Links"), false, DelectSelectedRoomLinks);
+        menu.AddItem(new GUIContent("Delete Selected Room Nodes"), false, DelectSelectedRoomNodes);
         menu.ShowAsContext();
     }
+
+   
+
+
+
+    /// <summary>
+    /// Select all room nodes
+    /// </summary>
+    private void SelectAllRoomNodes()
+    {
+        foreach (var roomNode in currentRoomNodeGraph.roomNodeList)
+        {
+            roomNode.isSelected = true;
+        }
+        GUI.changed = true;
+    }
+
     private void CreateRoomNode(object mousePositionObject)
     {
         // if current node graph empty then add entrance room node first
@@ -243,6 +263,89 @@ public class RoomNodeGraphEditor : EditorWindow
         // Refresh graph node dictionary
         currentRoomNodeGraph.OnValidate();
     }
+   /// <summary>
+   /// Delete the links between the selected room node
+   /// </summary>
+    private void DelectSelectedRoomLinks()
+    {
+        foreach (var roomNode in currentRoomNodeGraph.roomNodeList)
+        {
+            if (roomNode.isSelected && roomNode.childRoomNodeIDList.Count > 0)
+            {
+                for(int i = roomNode.childRoomNodeIDList.Count - 1; i >=0; i--)
+                {
+                    //Get Child Room Node
+                    var childRoomNode = currentRoomNodeGraph.GetRoomNode(roomNode.childRoomNodeIDList[i]);
+
+                    //if the child room node is selected
+                    if (childRoomNode != null && childRoomNode.isSelected)
+                    {
+                        //Remove childID from parent room node
+                        roomNode.RemoveChildRoomNodeIDFromRoomNode(childRoomNode.id);
+
+                        //Remove parentID from child room node
+                        childRoomNode.RemoveParentRoomNodeIDFromRoomNode(roomNode.id); 
+                    }
+                }
+            }
+        }
+        // Clear all selected room nodes
+        ClearAllSelectedRoomNode();
+    }
+    /// <summary>
+    /// Delete selected room nodes
+    /// </summary>
+    private void DelectSelectedRoomNodes()
+    {
+        Queue<RoomNodeSO> roomNodeDeletionQueue = new();
+
+        //Loop through all nodes
+        foreach (var roomNode in currentRoomNodeGraph.roomNodeList)
+        {
+            if (roomNode.isSelected && !roomNode.roomNodeType.isEntrance)
+            {
+                roomNodeDeletionQueue.Enqueue(roomNode);
+
+                // iterate through child room nodes ids
+                foreach (var childRoomNodeID in roomNode.childRoomNodeIDList)
+                {
+                    var childRoomNode = currentRoomNodeGraph.GetRoomNode(childRoomNodeID);
+                    if (childRoomNode!=null)
+                    {
+                        //Remove parentID from child room node
+                        childRoomNode.RemoveParentRoomNodeIDFromRoomNode(roomNode.id);
+                    }
+                }
+                foreach (var parentRoomNodeID in roomNode.parentRoomNodeIDList)
+                {
+                    //Retrive parent node
+                    var parentRoomNode = currentRoomNodeGraph.GetRoomNode(parentRoomNodeID);
+                    if (parentRoomNode!=null)
+                    {
+                        parentRoomNode.RemoveChildRoomNodeIDFromRoomNode(roomNode.id);
+                    }
+                }
+            }
+        }
+        while (roomNodeDeletionQueue.Count > 0)
+        {
+            var roomNodeToDelete = roomNodeDeletionQueue.Dequeue();
+
+            // Remove node from dictionary
+            currentRoomNodeGraph.roomNodeDictionary.Remove(roomNodeToDelete.id);
+
+            // Remove node from list
+            currentRoomNodeGraph.roomNodeList.Remove(roomNodeToDelete);
+
+            // Remove node from Asset database
+            DestroyImmediate(roomNodeToDelete, true);
+
+            // Save asset database
+            AssetDatabase.SaveAssets();
+        }
+    }
+
+
     #endregion
 
     #region Process Events
