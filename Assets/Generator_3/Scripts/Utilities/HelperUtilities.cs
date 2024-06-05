@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public static class HelperUtilities
@@ -6,10 +7,7 @@ public static class HelperUtilities
     /// <summary>
     /// Empty string debug check
     /// </summary>
-    /// <param name="thisObject">current check object</param>
-    /// <param name="fieldName"> current file name</param>
-    /// <param name="stringToCheck"> current string to check</param>
-    /// <returns></returns>
+
     public static bool ValidateCheckEmptyString(Object thisObject, string fieldName, string stringToCheck)
     {
         if (stringToCheck == "")
@@ -24,14 +22,16 @@ public static class HelperUtilities
     /// <summary>
     /// list empty or contains null value check - returns true if there is an error
     /// </summary>
-    /// <param name="thisObject"></param>
-    /// <param name="fieldName"></param>
-    /// <param name="enumerableObjectToCheck"></param>
-    /// <returns></returns>
+
     public static bool ValidateCheckEnumervaleValues(Object thisObject, string fieldName, IEnumerable enumerableObjectToCheck)
     {
         bool error = false;
         int count = 0;
+        if (enumerableObjectToCheck == null)
+        {
+            Debug.Log(fieldName + " is null in object " + thisObject.name.ToString());
+            return true;
+        }
         foreach (var item in enumerableObjectToCheck)
         {
             if (item == null)
