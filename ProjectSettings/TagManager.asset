@@ -3,7 +3,12 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Ground
+  - Decoration1
+  - Decoration2
+  - Collision
+  - Minimap
   layers:
   - Default
   - TransparentFX
@@ -15,8 +20,8 @@ TagManager:
   - Door
   - Ground
   - Player
-  - 
-  - 
+  - Wall
+  - MInimap
   - 
   - 
   - 
@@ -49,4 +54,13 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 3992511367
+    locked: 0
+  - name: Front
+    uniqueID: 357487411
+    locked: 0
+  - name: Collison
+    uniqueID: 3819523957
+    locked: 0
+  - name: Minimap
+    uniqueID: 3963512475
     locked: 0
