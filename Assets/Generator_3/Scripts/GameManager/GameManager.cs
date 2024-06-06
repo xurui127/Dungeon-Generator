@@ -22,6 +22,7 @@ public class GameManager : SingletonMonobehaviour<GameManager>
     private void Start()
     {
         gameState = GameState.gameStart;
+        PlayDungeonLevel(currentDungeonLevelListIndex);
     }
 
     private void Update()
@@ -30,6 +31,7 @@ public class GameManager : SingletonMonobehaviour<GameManager>
         if (Input.GetKeyDown(KeyCode.R))
         {
             gameState = GameState.gameStart;
+
         }
     }
 
@@ -40,6 +42,7 @@ public class GameManager : SingletonMonobehaviour<GameManager>
             case GameState.gameStart:
                 // play first level
                 PlayDungeonLevel(currentDungeonLevelListIndex);
+                gameState = GameState.playingLevel;
                 break;
 
         }
@@ -47,7 +50,13 @@ public class GameManager : SingletonMonobehaviour<GameManager>
 
     private void PlayDungeonLevel(int dungeonLevelListIndex)
     {
-        
+        // Build dungeon for level 
+        bool dungeonBuiltSuccessfuly = DungeonBuilder.Instance.GenerateDungeon(dungeonLevelList[dungeonLevelListIndex]);
+
+        if (!dungeonBuiltSuccessfuly)
+        {
+            Debug.LogError("Could not build dungeon from specified roos and node graphs");
+        }
     }
 
     #region  Validation

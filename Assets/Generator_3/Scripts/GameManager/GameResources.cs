@@ -24,5 +24,9 @@ public class GameResources : MonoBehaviour
     [Tooltip("Populate with the dungeon RoomNodeTypeListSO")]
     public RoomNodeTypeListSO roomNodetypeList;
 
+    [Space(10)]
+    [Header("Materials")]
+    [Tooltip("Dimmed Material")]
+    public Material dimmedMaterial;
 
 }

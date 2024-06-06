@@ -12,4 +12,9 @@ public static class Settings
     // since the rooms are more likely to not fit together
     public const int maxChildCorridors = 3;
     #endregion
+
+    #region Dungeon Build Settings
+    public const int maxDungeonRebuildAttempsForRoomGraph = 1000;
+    public const int maxDungeonBuildAttempts = 10;
+    #endregion
 }
