@@ -5,7 +5,7 @@ using UnityEditor.Rendering;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "DungeonLevel_", menuName = "Scriptable Objects/Dungeon/Gungeon Level")]
-public class DungeonRoomSO : ScriptableObject
+public class DungeonLevelSO : ScriptableObject
 {
     [Space(10)]
     [Header("Basic Level Details")]
