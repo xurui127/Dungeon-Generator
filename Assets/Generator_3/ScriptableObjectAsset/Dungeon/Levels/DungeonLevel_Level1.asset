@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelName: 'Level1 '
   roomTemplateList:
-  - {fileID: 11400000, guid: 3cdc996eae718644dad8dad24ae2c39f, type: 2}
+  - {fileID: 11400000, guid: 03fb8e6e180566844b9c3942a093676e, type: 2}
   - {fileID: 11400000, guid: 17aab39e60e31b44cbb99c260366f725, type: 2}
   - {fileID: 11400000, guid: 75e9ed4d33bf76c439c799075b936c76, type: 2}
   - {fileID: 11400000, guid: 58168ebb0df392f41b061a0c6b25da05, type: 2}
