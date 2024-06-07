@@ -55,6 +55,7 @@ public class TilemapVisualizer : MonoBehaviour
 
     public void PaintSingleBasicWall(Vector2Int position, string binaryType)
     {
+        // Covert neighborsBinaryType to an Int
         int typeAsInt = Convert.ToInt32(binaryType, 2);
         TileBase tile = null;
         if (WallTypesHelper.wallTop.Contains(typeAsInt))

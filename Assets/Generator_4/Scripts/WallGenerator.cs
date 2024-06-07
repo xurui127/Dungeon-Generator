@@ -9,7 +9,9 @@ public static class WallGenerator
 {
     public static void CreateWalls(HashSet<Vector2Int> floorPositions,TilemapVisualizer tilemapVisualizer)
     {
+        // Paint basic walls for cardinal direction (Up,Right,Down,Left)
         var basicWallPosition = FindWallsInDirection(floorPositions, Direction2D.cardinalDirectionList);
+        // Paint coner walls for diagonal direction ( Up- Right, Right - Down,Down - Left,Left - Up)
         var cornerWallPosition = FindWallsInDirection(floorPositions, Direction2D.diagonalDirectionList);
         CreateBasicWall(tilemapVisualizer, basicWallPosition,floorPositions);
         CreateCornerWall(tilemapVisualizer, cornerWallPosition, floorPositions);
@@ -45,16 +47,20 @@ public static class WallGenerator
 
             foreach (var direction in Direction2D.cardinalDirectionList)
             {
-                var neighbouPosition = position + direction;
-                if (floorPositions.Contains(neighbouPosition))
+                var neighbotPosition = position + direction;
+                // Check if floor position contains neighbor position
+                if (floorPositions.Contains(neighbotPosition))
                 {
+                    // And string 1 , means there is a floor
                     neighborsBinaryType += "1";
                 }
                 else
                 {
+                    // if not, means there is no floors
                     neighborsBinaryType += "0";
                 }
             }
+            // Start paint cardinaDirection walls 
             tilemapVisualizer.PaintSingleBasicWall(position,neighborsBinaryType);
         }
     }
@@ -67,6 +73,7 @@ public static class WallGenerator
         {
             foreach (var direction in directionList)
             {
+                
                 var neighborPosition = position + direction;
                 //if neighbor is not contained means it is wall position
                 if (floorPositions.Contains(neighborPosition) == false)
