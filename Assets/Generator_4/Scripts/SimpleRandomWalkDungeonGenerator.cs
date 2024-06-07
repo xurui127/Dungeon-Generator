@@ -2,36 +2,36 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using UnityEngine;
 
-public class SimpleRandomWalkDungeonGenerator : MonoBehaviour
+public class SimpleRandomWalkDungeonGenerator : AbstractDungeonGenerator
 {
 
-    [SerializeField]protected Vector2Int startPosition = Vector2Int.zero;
-    [SerializeField] private int iterations = 10;
-    [SerializeField] public int walkLength = 10;
-    [SerializeField] public bool startRandomlyEachIteration = true;
-    [SerializeField]private TilemapVisualizer tilemapVisualizer;
 
-    public void RunProceduralGeneration()
+    [SerializeField] protected SimpleRandomWalkSO randomWalkParameters;
+
+
+    protected override void RunProceduralGeneration()
     {
-        HashSet<Vector2Int> floorPosition = RunRandomWalk();
+        HashSet<Vector2Int> floorPosition = RunRandomWalk(randomWalkParameters,startPosition);
         tilemapVisualizer.Clear();
         tilemapVisualizer.PaintFloorTiles(floorPosition);
+        WallGenerator.CreateWalls(floorPosition, tilemapVisualizer);
     }
 
-    private HashSet<Vector2Int> RunRandomWalk()
+    protected HashSet<Vector2Int> RunRandomWalk(SimpleRandomWalkSO parameters,Vector2Int position)
     {
-        var currentPosition = startPosition;
+        var currentPosition = position;
 
         HashSet<Vector2Int> floorPositions = new();
 
-        for (int i = 0; i < iterations; i++)
+        for (int i = 0; i < parameters.iterations; i++)
         {
-            var path = ProceduralGenerationAlgorithms.SimpleRandomWalk(currentPosition,walkLength);
+            var path = ProceduralGenerationAlgorithms.SimpleRandomWalk(currentPosition, parameters.walkLength);
 
             floorPositions.UnionWith(path);
-            if (startRandomlyEachIteration)
+            if (parameters.startRandomlyEachIteration)
             {
                 currentPosition = floorPositions.ElementAt(UnityEngine.Random.Range(0,floorPositions.Count));
 
@@ -40,5 +40,5 @@ public class SimpleRandomWalkDungeonGenerator : MonoBehaviour
         return floorPositions;
     }
 
-
+ 
 }

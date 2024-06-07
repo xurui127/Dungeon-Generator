@@ -21,5 +21,22 @@ public static class ProceduralGenerationAlgorithms
 
         return path;
     }
+
+    public static List<Vector2Int> RandomWalkCorridor(Vector2Int startPosition, int corridorLength)
+    {
+        List<Vector2Int> corridor = new();
+
+        var direction = Direction2D.GetCardinalDirecton();
+
+        var currentPostion = startPosition;
+        corridor.Add(currentPostion);
+        for (int i = 0; i < corridorLength; i++)
+        {
+            currentPostion += direction;
+            corridor.Add(currentPostion);
+        }
+
+        return corridor;
+    }
 }
 
