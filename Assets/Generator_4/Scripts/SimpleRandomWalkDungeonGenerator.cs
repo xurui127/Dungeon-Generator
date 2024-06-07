@@ -11,15 +11,13 @@ public class SimpleRandomWalkDungeonGenerator : MonoBehaviour
     [SerializeField] private int iterations = 10;
     [SerializeField] public int walkLength = 10;
     [SerializeField] public bool startRandomlyEachIteration = true;
-    
+    [SerializeField]private TilemapVisualizer tilemapVisualizer;
 
     public void RunProceduralGeneration()
     {
         HashSet<Vector2Int> floorPosition = RunRandomWalk();
-        foreach (var position in floorPosition)
-        {
-            Debug.Log(position);
-        }
+        tilemapVisualizer.Clear();
+        tilemapVisualizer.PaintFloorTiles(floorPosition);
     }
 
     private HashSet<Vector2Int> RunRandomWalk()
@@ -41,4 +39,6 @@ public class SimpleRandomWalkDungeonGenerator : MonoBehaviour
         }
         return floorPositions;
     }
+
+
 }
