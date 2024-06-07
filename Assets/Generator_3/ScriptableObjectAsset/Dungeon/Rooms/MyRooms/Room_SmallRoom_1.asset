@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f426a26a5394fe4aa828e818e874677, type: 3}
+  m_Name: Room_SmallRoom_1
+  m_EditorClassIdentifier: 
+  guid: f01d3f1ff419057428330c2211f22716
+  prefab: {fileID: 4406677984455732445, guid: 9a4251a72e092f946a076b874fb25957, type: 3}
+  previousPrefab: {fileID: 4406677984455732445, guid: 9a4251a72e092f946a076b874fb25957, type: 3}
+  roomNodeType: {fileID: 11400000, guid: d1f01a46e25e40c4ca62b027b3181a5b, type: 2}
+  lowerBounds: {x: 0, y: 0}
+  upperBounds: {x: 0, y: 0}
+  doorwayList: []
+  spawnPositionArray: []

@@ -1,11 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public enum Orientation
+﻿public enum Orientation
 {
-    north, 
-    south, 
+    north,
+    east,
+    south,
     west,
-    east
+    none
 }
+public enum GameState
+{
+    gameStart,
+    playingLevel,
+    engagingEnemies,
+    bossStage,
+    engagingBoss,
+    levelCompleted,
+    gameWon,
+    gameLost,
+    gamePause,
+    dungeonOverviewMap,
+    restartGame
+}
+
