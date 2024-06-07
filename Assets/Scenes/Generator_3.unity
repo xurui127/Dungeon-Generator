@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dungeonLevelList:
-  - {fileID: 11400000, guid: 44d0b27240ec14f468ddd32a335321d9, type: 2}
+  - {fileID: 11400000, guid: 2340ad34a2c62034f86ba9f4ee8b818d, type: 2}
   currentDungeonLevelListIndex: 0
   gameState: 0
 --- !u!4 &326476189
